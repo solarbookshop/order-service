@@ -17,3 +17,8 @@ spring:
       max-create-connection-time: 2s
       initial-size: 5
       max-size: 10
+# R2DBC support - https://github.com/flyway/flyway/issues/2502
+  flyway:
+    user: ${spring.r2dbc.username}
+    password: ${spring.r2dbc.password}
+    url: jdbc:postgresql://localhost:5433/solardb_order
