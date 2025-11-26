@@ -1,4 +1,4 @@
-package com.example.orderservice;
+package com.solarbookshop.orderservice;
 
 import org.springframework.boot.SpringApplication;
 
