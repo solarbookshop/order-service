@@ -1,4 +1,4 @@
-package com.solarbookshop.orderservice.domain.order;
+package com.solarbookshop.orderservice.order.domain;
 
 public enum OrderStatus {
 	ACCEPTED,

@@ -1,4 +1,4 @@
-package com.solarbookshop.orderservice.domain.order;
+package com.solarbookshop.orderservice.order.domain;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
