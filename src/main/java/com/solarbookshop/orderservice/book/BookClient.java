@@ -2,6 +2,7 @@ package com.solarbookshop.orderservice.book;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
@@ -25,6 +26,8 @@ public class BookClient {
             .retrieve()
             .bodyToMono(Book.class)
             .timeout(timeout, Mono.empty())
-            .retryWhen(Retry.backoff(3, Duration.ofMillis(300)));
+            .onErrorResume(WebClientResponseException.NotFound.class, e -> Mono.empty())
+            .retryWhen(Retry.backoff(3, Duration.ofMillis(300)))
+            .onErrorResume(Exception.class, e -> Mono.empty());
   }
 }
