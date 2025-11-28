@@ -24,3 +24,4 @@ spring:
     url: jdbc:postgresql://localhost:5433/solardb_order
 solar:
   catalog-service-uri: http://localhost:9001
+  catalog-service-timeout: 3s
