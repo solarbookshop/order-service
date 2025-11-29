@@ -1,7 +1,7 @@
 package com.solarbookshop.orderservice.book;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -30,16 +30,16 @@ class BookClientTests {
   }
 
   @AfterEach
-  void tearDown() throws IOException {
+  void tearDown() {
     this.mockWebServer.close();
   }
 
   @Test
   void when_book_exists_then_return_book() {
     var bookIsbn = "1234567890";
-    var mockResponse = new MockResponse()
+    var mockResponse = new MockResponse.Builder()
             .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setBody("""
+            .body("""
                     {
                       "isbn": %s,
                       "title": "Title",
@@ -47,7 +47,8 @@ class BookClientTests {
                       "price": 9.90,
                       "publisher": "Polarsophia"
                     }
-                    """.formatted(bookIsbn));
+                    """.formatted(bookIsbn))
+            .build();
     mockWebServer.enqueue(mockResponse);
 
     Mono<Book> book = bookClient.getBookByIsbn(bookIsbn);
