@@ -22,12 +22,18 @@ public class BookClient {
   public Mono<Book> getBookByIsbn(String isbn) {
     return webClient
             .get()
-            .uri(BOOKS_ROOT_API + isbn)
+            .uri(uri -> {
+                var fullUri = uri.path(BOOKS_ROOT_API + isbn).build();
+                System.out.println("Requesting: " + fullUri);
+                return fullUri;
+            })
             .retrieve()
             .bodyToMono(Book.class)
+            .doOnNext(book -> System.out.println("Received response: " + book))
+            .doOnError(error -> System.err.println("Error for ISBN " + isbn + ": " + error.getMessage()))
             .timeout(timeout, Mono.empty())
-            .onErrorResume(WebClientResponseException.NotFound.class, e -> Mono.empty())
+            .onErrorResume(WebClientResponseException.NotFound.class, _ -> Mono.empty())
             .retryWhen(Retry.backoff(3, Duration.ofMillis(300)))
-            .onErrorResume(Exception.class, e -> Mono.empty());
+            .onErrorResume(Exception.class, _ -> Mono.empty());
   }
 }
