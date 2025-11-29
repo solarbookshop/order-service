@@ -58,3 +58,9 @@ dependencyManagement {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+tasks.bootBuildImage {
+    builder.set("paketobuildpacks/builder-noble-java-tiny:latest")
+    imageName.set(project.name)
+    environment.set(mapOf("BP_JVM_VERSION" to "25"))
+}
