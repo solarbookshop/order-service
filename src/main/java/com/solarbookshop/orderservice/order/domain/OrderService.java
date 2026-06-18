@@ -37,10 +37,10 @@ public class OrderService {
   @Transactional
   public Mono<Order> submitOrder(String isbn, int quantity) {
     return bookClient.getBookByIsbn(isbn)
-            .map(book -> buildAcceptedOrder(book, quantity))
-            .defaultIfEmpty(buildRejectedOrder(isbn, quantity))
-            .flatMap(orderRepository::save)
-            .doOnNext(this::publishOrderAcceptedEvent);
+        .map(book -> buildAcceptedOrder(book, quantity))
+        .defaultIfEmpty(buildRejectedOrder(isbn, quantity))
+        .flatMap(orderRepository::save)
+        .doOnNext(this::publishOrderAcceptedEvent);
   }
 
   private Order buildAcceptedOrder(Book book, int quantity) {
@@ -49,21 +49,22 @@ public class OrderService {
 
   public Flux<Order> consumeOrderDispatchedEvent(Flux<OrderDispatchedMessage> flux) {
     return flux.flatMap(message -> orderRepository.findById(message.orderId()))
-            .map(this::buildDispatchedOrder)
-            .flatMap(orderRepository::save);
+        .filter(order -> order.status().equals(OrderStatus.ACCEPTED))
+        .map(this::buildDispatchedOrder)
+        .flatMap(orderRepository::save);
   }
 
   private Order buildDispatchedOrder(Order existingOrder) {
     return new Order(
-            existingOrder.id(),
-            existingOrder.bookIsbn(),
-            existingOrder.bookName(),
-            existingOrder.bookPrice(),
-            existingOrder.quantity(),
-            OrderStatus.DISPATCHED,
-            existingOrder.createdDate(),
-            existingOrder.lastModifiedDate(),
-            existingOrder.version()
+        existingOrder.id(),
+        existingOrder.bookIsbn(),
+        existingOrder.bookName(),
+        existingOrder.bookPrice(),
+        existingOrder.quantity(),
+        OrderStatus.DISPATCHED,
+        existingOrder.createdDate(),
+        existingOrder.lastModifiedDate(),
+        existingOrder.version()
     );
   }
 
@@ -73,9 +74,9 @@ public class OrderService {
     }
     var orderAcceptedMessage = new OrderAcceptedMessage(order.id());
 
-    log.info("Sending order accepted event with id: {}", order.id());
+    log.info("📨 Sending order accepted event with id: {}", order.id());
     var result = streamBridge.send("acceptOrder-out-0", orderAcceptedMessage);
 
-    log.info("Result of sending data for order with id {}: {}", order.id(), result);
+    log.info("✅ Result of sending data for order with id {}: {}", order.id(), result);
   }
 }
