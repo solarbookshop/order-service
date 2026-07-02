@@ -34,4 +34,6 @@ spec:
               value: jdbc:postgresql://solar-postgres/solardb_order
             - name: SPRING_RABBITMQ_HOST
               value: solar-rabbitmq
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
+              value: http://solar-keycloak/realms/SolarBookshop
 
