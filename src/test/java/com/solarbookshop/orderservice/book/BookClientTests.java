@@ -35,6 +35,19 @@ class BookClientTests {
   }
 
   @Test
+	void whenBookNotExistsThenReturnEmpty() {
+		var bookIsbn = "1234567891";
+    var mockResponse = new MockResponse.Builder()
+				.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .build();
+		mockWebServer.enqueue(mockResponse);
+
+		StepVerifier.create(bookClient.getBookByIsbn(bookIsbn))
+				.expectNextCount(0)
+				.verifyComplete();
+	}
+
+  @Test
   void when_book_exists_then_return_book() {
     var bookIsbn = "1234567890";
     var mockResponse = new MockResponse.Builder()

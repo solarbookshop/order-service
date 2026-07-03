@@ -30,8 +30,8 @@ public class OrderService {
     return Order.of(isbn, null, null, quantity, OrderStatus.REJECTED);
   }
 
-  public Flux<Order> getAllOrders() {
-    return orderRepository.findAll();
+  public Flux<Order> getAllOrders(String userName) {
+    return orderRepository.findByCreatedBy(userName);
   }
 
   @Transactional
@@ -64,6 +64,8 @@ public class OrderService {
         OrderStatus.DISPATCHED,
         existingOrder.createdDate(),
         existingOrder.lastModifiedDate(),
+        existingOrder.createdBy(),
+        existingOrder.lastModifiedBy(),
         existingOrder.version()
     );
   }

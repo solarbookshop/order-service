@@ -32,6 +32,9 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
@@ -75,6 +78,76 @@ class OrderServiceApplicationTests {
 
     shayamTokens = authenticateWith("shayam", "password", webClient);
     ramTokens = authenticateWith("ram", "password", webClient);
+  }
+
+  @Test
+  void when_get_own_orders_then_return() {
+    String bookIsbn = "1234567893";
+    var book = new Book(bookIsbn, "Title", "Author", 9.90);
+    given(bookClient.getBookByIsbn(bookIsbn)).willReturn(Mono.just(book));
+    var orderRequest = new OrderRequest(bookIsbn, 1);
+
+    var expectedOrder = webTestClient.post().uri("/orders")
+        .headers(headers -> headers.setBearerAuth(ramTokens.accessToken()))
+        .bodyValue(orderRequest)
+        .exchange()
+        .expectStatus().is2xxSuccessful()
+        .expectBody(Order.class).returnResult().getResponseBody();
+    assertThat(expectedOrder).isNotNull();
+    assertThat(objectMapper.readValue(outputDestination.receive().getPayload(), OrderAcceptedMessage.class))
+        .isEqualTo(new OrderAcceptedMessage(expectedOrder.id()));
+
+    webTestClient.get().uri("/orders")
+        .headers(headers -> headers.setBearerAuth(ramTokens.accessToken()))
+        .exchange()
+        .expectStatus().is2xxSuccessful()
+        .expectBodyList(Order.class).value(orders -> {
+          List<Long> orderIds = orders.stream()
+              .map(Order::id)
+              .collect(Collectors.toList());
+          assertThat(orderIds).contains(expectedOrder.id());
+        });
+  }
+
+  @Test
+  void when_get_orders_for_another_user_then_not_returned() {
+    String bookIsbn = "1234567899";
+    var book = new Book(bookIsbn, "Title", "Author", 9.90);
+    given(bookClient.getBookByIsbn(bookIsbn)).willReturn(Mono.just(book));
+    var orderRequest = new OrderRequest(bookIsbn, 1);
+
+    var orderByRam = webTestClient.post().uri("/orders")
+        .headers(headers -> headers.setBearerAuth(ramTokens.accessToken()))
+        .bodyValue(orderRequest)
+        .exchange()
+        .expectStatus().is2xxSuccessful()
+        .expectBody(Order.class).returnResult().getResponseBody();
+    assertThat(orderByRam).isNotNull();
+    assertThat(objectMapper.readValue(outputDestination.receive().getPayload(), OrderAcceptedMessage.class))
+        .isEqualTo(new OrderAcceptedMessage(orderByRam.id()));
+
+    var orderByShayam = webTestClient.post().uri("/orders")
+        .headers(headers -> headers.setBearerAuth(shayamTokens.accessToken()))
+        .bodyValue(orderRequest)
+        .exchange()
+        .expectStatus().is2xxSuccessful()
+        .expectBody(Order.class).returnResult().getResponseBody();
+    assertThat(orderByShayam).isNotNull();
+    assertThat(objectMapper.readValue(outputDestination.receive().getPayload(), OrderAcceptedMessage.class))
+        .isEqualTo(new OrderAcceptedMessage(orderByShayam.id()));
+
+    webTestClient.get().uri("/orders")
+        .headers(headers -> headers.setBearerAuth(ramTokens.accessToken()))
+        .exchange()
+        .expectStatus().is2xxSuccessful()
+        .expectBodyList(Order.class)
+        .value(orders -> {
+          List<Long> orderIds = orders.stream()
+              .map(Order::id)
+              .collect(Collectors.toList());
+          assertThat(orderIds).contains(orderByRam.id());
+          assertThat(orderIds).doesNotContain(orderByShayam.id());
+        });
   }
 
   @Test
