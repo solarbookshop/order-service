@@ -29,6 +29,7 @@ extra["testKeyCloakVersion"] = "4.2.1"
 extra["okHttpVersion"] = "5.4.0"
 
 dependencies {
+  implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("org.springframework.boot:spring-boot-starter-flyway")
   implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
   implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -41,6 +42,7 @@ dependencies {
   runtimeOnly("org.postgresql:postgresql")
   runtimeOnly("org.postgresql:r2dbc-postgresql")
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+  testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
   testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
   testImplementation("org.springframework.boot:spring-boot-starter-data-r2dbc-test")
   testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
