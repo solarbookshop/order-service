@@ -27,6 +27,7 @@ repositories {
 extra["springCloudVersion"] = "2025.1.2"
 extra["testKeyCloakVersion"] = "4.2.1"
 extra["okHttpVersion"] = "5.4.0"
+extra["otelVersion"] = "2.29.0"
 
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -35,7 +36,6 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
-  implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
   implementation("org.springframework.cloud:spring-cloud-stream-binder-rabbit")
   implementation("org.springframework.cloud:spring-cloud-starter-config")
   implementation("org.flywaydb:flyway-database-postgresql")
@@ -43,6 +43,7 @@ dependencies {
   runtimeOnly("org.postgresql:postgresql")
   runtimeOnly("org.postgresql:r2dbc-postgresql")
   runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+  runtimeOnly("io.opentelemetry.javaagent:opentelemetry-javaagent:${property("otelVersion")}")
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
   testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
   testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
@@ -52,7 +53,6 @@ dependencies {
   testImplementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test")
   testImplementation("org.springframework.boot:spring-boot-testcontainers")
   testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")
-  testImplementation("org.springframework.boot:spring-boot-starter-opentelemetry-test")
   testImplementation("org.testcontainers:testcontainers-junit-jupiter")
   testImplementation("org.testcontainers:testcontainers-postgresql")
   testImplementation("org.testcontainers:testcontainers-r2dbc")
