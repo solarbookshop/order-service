@@ -1,0 +1,14 @@
+solar:
+  catalog-service-uri: http://catalog-service
+spring:
+  r2dbc:
+    url: r2dbc:postgresql://solar-postgres/solardb_order
+  flyway:
+    url: jdbc:postgresql://solar-postgres/solardb_order
+  rabbitmq:
+    host: solar-rabbitmq
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://solar-keycloak/realms/SolarBookshop

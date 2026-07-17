@@ -44,8 +44,11 @@ jobs:
         uses: alexellis/arkade-get@master
         with:
           kubeconform: latest
+          kustomize: latest
       - name: Validate Kubernetes manifests
-        run: kubeconform --strict k8s
+        run: |
+          # build manifests from the k8s kustomization and validate via stdin
+          kustomize build k8s | kubeconform --strict -
   package:
     name: Package and Publish
     if: ${{ github.ref == 'refs/heads/main' }}
